@@ -1,6 +1,9 @@
+const dotenv = require('dotenv');
+dotenv.config();
+
 const mongodb = require('mongodb');
 
-const connectionString = 'mongodb+srv://wkylin:Win720101018@cluster0-qsop6.mongodb.net/ComplexApp?retryWrites=true&w=majority';
+const connectionString = process.env.CONNECTIONSTRING;
 
 const connectionOptions = {
   useNewUrlParser: true,
@@ -13,7 +16,7 @@ mongodb.connect(connectionString, connectionOptions, function (err, client) {
   module.exports = client.db();
   
   const app = require('./app');
-  app.listen(3000, () => {
+  app.listen(process.env.PORT, () => {
     console.log('Server start at port 3000!');
   });
 });
