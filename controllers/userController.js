@@ -22,7 +22,10 @@ exports.login = function (req, res) {
         favColor: "blue",
         username: user.data.username
       };
-      res.send(result);
+      // res.send(result);
+      req.session.save(function(){
+        res.redirect('/');
+      })
     }
   ).catch(function (err) {
       res.send(err);
@@ -31,8 +34,12 @@ exports.login = function (req, res) {
 };
 
 
-exports.logout = function () {
-
+exports.logout = function (req, res) {
+  // req.session.destroy();
+  // res.send('You are now logged out!');
+  req.session.destroy(function () {
+    res.redirect('/');
+  });
 };
 
 exports.register = function (req, res) {
@@ -56,7 +63,7 @@ exports.home = function (req, res) {
   
   if (req.session.user) {
     res.render('home-dashboard', {
-      username:req.session.user.username
+      username: req.session.user.username
     });
     // res.send('Welcome to the actual app!');
   } else {
