@@ -13,7 +13,8 @@ const connectionOptions = {
 mongodb.connect(connectionString, connectionOptions, function (err, client) {
   
   // console.log(client.db());
-  module.exports = client.db();
+  // module.exports = client.db();
+  module.exports = client;
   
   const app = require('./app');
   app.listen(process.env.PORT, () => {

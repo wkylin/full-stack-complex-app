@@ -1,4 +1,4 @@
-const usersCollection = require('../db').collection('users');
+const usersCollection = require('../db').db().collection('users');
 const bcrypt = require('bcryptjs');
 
 const validator = require('validator');
