@@ -54,7 +54,14 @@ exports.register = function (req, res) {
   user.register();
   
   if (user.errors.length) {
-    res.send(user.errors);
+    // res.send(user.errors);
+    user.errors.forEach(function(error){
+      req.flash('regErrors', error);
+    });
+    req.session.save(function(){
+      res.redirect('/');
+    })
+    
   } else {
     res.send('Congrats, there are no errors.');
   }
@@ -73,6 +80,7 @@ exports.home = function (req, res) {
   } else {
     res.render('home-guest', {
       errors:req.flash('errors'),
+      regErrors: req.flash('regErrors'),
     });
   }
   
