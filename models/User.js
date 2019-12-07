@@ -27,27 +27,47 @@ User.prototype.cleanUp = function () {
 };
 
 User.prototype.validate = function () {
-  console.log(this.data.username);
-  if (this.data.username === '') {
-    this.errors.push('You must provide a username.');
-  }
-  if (this.data.username != '' && !validator.isAlphanumeric(this.data.username)) {
-    this.errors.push('Username can only contain letters and numbers.');
-  }
-  if (!validator.isEmail(this.data.email)) {
-    this.errors.push('You must provide a valid email address.');
-  }
-  if (this.data.password === '') {
-    this.errors.push('You must provide a password.');
-  }
-  
-  if (this.data.password.length > 0 && this.data.password.length < 12) {
-    this.errors.push('Password must be at least 12 characters.');
-  }
-  
-  if (this.data.password.length > 100) {
-    this.errors.push('Password cannot exceed 100 characters.');
-  }
+  return new Promise(async (resolve, reject) => {
+    
+    // console.log(this.data.username);
+    if (this.data.username === '') {
+      this.errors.push('You must provide a username.');
+    }
+    if (this.data.username != '' && !validator.isAlphanumeric(this.data.username)) {
+      this.errors.push('Username can only contain letters and numbers.');
+    }
+    if (!validator.isEmail(this.data.email)) {
+      this.errors.push('You must provide a valid email address.');
+    }
+    if (this.data.password === '') {
+      this.errors.push('You must provide a password.');
+    }
+    
+    if (this.data.password.length > 0 && this.data.password.length < 12) {
+      this.errors.push('Password must be at least 12 characters.');
+    }
+    
+    if (this.data.password.length > 100) {
+      this.errors.push('Password cannot exceed 100 characters.');
+    }
+    
+    let userName = this.data.username;
+    let email = this.data.email;
+    
+    if (userName.length > 2 && userName.length < 31 && validator.isAlphanumeric(userName)) {
+      let userNameExists = await usersCollection.findOne({ username: userName });
+      if (userNameExists) {
+        this.errors.push('That username is already taken');
+      }
+    }
+    if (validator.isEmail(email)) {
+      let emailExists = await usersCollection.findOne({ email: email });
+      if (emailExists) {
+        this.errors.push('That email is already being used.');
+      }
+    }
+    resolve();
+  });
 };
 
 
@@ -85,13 +105,13 @@ User.prototype.login = function () {
       this.cleanUp();
       usersCollection.findOne({ username: this.data.username }).then((attemptedUser) => {
         console.log('attemptedUser', attemptedUser);
-        if (attemptedUser &&  bcrypt.compareSync(this.data.password, attemptedUser.password)) {
+        if (attemptedUser && bcrypt.compareSync(this.data.password, attemptedUser.password)) {
           resolve('Congrats!!');
         } else {
           reject('Invalid name or password');
         }
       }).catch(() => {
-        reject('Please try again later.')
+        reject('Please try again later.');
       });
     }
   );
@@ -99,22 +119,25 @@ User.prototype.login = function () {
 
 
 User.prototype.register = function () {
-  // console.log('register');
-  // Step #1 : Validate user data
-  this.cleanUp();
-  this.validate();
-  
-  
-  // Step #2: Only if there are no validation errors
-  // then save the user data into a database
-  
-  if (!this.errors.length) {
-    // hash user password
-    let salt = bcrypt.genSaltSync(10);
-    this.data.password = bcrypt.hashSync(this.data.password, salt);
+  return new Promise(async (resolve, reject) => {
+    // console.log('register');
+    // Step #1 : Validate user data
+    this.cleanUp();
+    await this.validate();
     
-    usersCollection.insertOne(this.data);
-  }
+    // Step #2: Only if there are no validation errors
+    // then save the user data into a database
+    
+    if (!this.errors.length) {
+      // hash user password
+      let salt = bcrypt.genSaltSync(10);
+      this.data.password = bcrypt.hashSync(this.data.password, salt);
+      await usersCollection.insertOne(this.data);
+      resolve();
+    } else {
+      reject(this.errors);
+    }
+  });
 };
 
 module.exports = User;

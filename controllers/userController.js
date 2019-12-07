@@ -30,9 +30,9 @@ exports.login = function (req, res) {
   ).catch(function (err) {
       // res.send(err);
       req.flash('errors', err);
-      req.session.save(function(){
+      req.session.save(function () {
         res.redirect('/');
-      })
+      });
     }
   );
 };
@@ -51,24 +51,47 @@ exports.register = function (req, res) {
   
   let user = new User(req.body);
   
-  user.register();
-  
-  if (user.errors.length) {
-    // res.send(user.errors);
-    user.errors.forEach(function(error){
+  user.register().then(() => {
+    
+    req.session.user = {
+      username: user.data.username
+    };
+    req.session.save(function () {
+      res.redirect('/');
+    });
+  }).catch((regErrors) => {
+    regErrors.forEach(function (error) {
       req.flash('regErrors', error);
     });
-    req.session.save(function(){
+    req.session.save(function () {
       res.redirect('/');
-    })
-    
-  } else {
-    res.send('Congrats, there are no errors.');
-  }
-  
-  // res.send('Thanks for trying to register!')
-  
+    });
+  });
 };
+
+// exports.register = function (req, res) {
+//   // console.log(req.body);
+//
+//   let user = new User(req.body);
+//
+//   user.register();
+//
+//   if (user.errors.length) {
+//     // res.send(user.errors);
+//     user.errors.forEach(function(error){
+//       req.flash('regErrors', error);
+//     });
+//     req.session.save(function(){
+//       res.redirect('/');
+//     })
+//
+//   } else {
+//     res.send('Congrats, there are no errors.');
+//   }
+//
+//   // res.send('Thanks for trying to register!')
+//
+// };
 
 exports.home = function (req, res) {
   
@@ -79,8 +102,8 @@ exports.home = function (req, res) {
     // res.send('Welcome to the actual app!');
   } else {
     res.render('home-guest', {
-      errors:req.flash('errors'),
-      regErrors: req.flash('regErrors'),
+      errors: req.flash('errors'),
+      regErrors: req.flash('regErrors')
     });
   }
   
