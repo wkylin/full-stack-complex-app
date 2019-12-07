@@ -23,12 +23,16 @@ exports.login = function (req, res) {
         username: user.data.username
       };
       // res.send(result);
+      req.session.save(function () {
+        res.redirect('/');
+      });
+    }
+  ).catch(function (err) {
+      // res.send(err);
+      req.flash('errors', err);
       req.session.save(function(){
         res.redirect('/');
       })
-    }
-  ).catch(function (err) {
-      res.send(err);
     }
   );
 };
@@ -67,7 +71,9 @@ exports.home = function (req, res) {
     });
     // res.send('Welcome to the actual app!');
   } else {
-    res.render('home-guest');
+    res.render('home-guest', {
+      errors:req.flash('errors'),
+    });
   }
   
 };
