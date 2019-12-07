@@ -8,59 +8,92 @@ let User = function (data) {
 };
 
 User.prototype.cleanUp = function () {
-  if(typeof(this.data.username) !=  'string'){
+  if (typeof (this.data.username) != 'string') {
     this.data.username = '';
   }
-  if(typeof(this.data.email) !=  'string'){
+  if (typeof (this.data.email) != 'string') {
     this.data.email = '';
   }
-  if(typeof(this.data.password) !=  'string'){
+  if (typeof (this.data.password) != 'string') {
     this.data.password = '';
   }
   
   this.data = {
     username: this.data.username.trim().toLowerCase(),
-    email:this.data.email.trim().toLowerCase(),
-    password:this.data.password,
-  }
+    email: this.data.email.trim().toLowerCase(),
+    password: this.data.password
+  };
 };
 
 User.prototype.validate = function () {
   console.log(this.data.username);
-  if (this.data.username ===   '') {
+  if (this.data.username === '') {
     this.errors.push('You must provide a username.');
   }
-  if(this.data.username !=  '' &&  !validator.isAlphanumeric(this.data.username)) {
-    this.errors.push('Username can only contain letters and numbers.')
+  if (this.data.username != '' && !validator.isAlphanumeric(this.data.username)) {
+    this.errors.push('Username can only contain letters and numbers.');
   }
   if (!validator.isEmail(this.data.email)) {
-    this.errors.push('You must provide a valid email address.')
+    this.errors.push('You must provide a valid email address.');
   }
-  if (this.data.password ===   '') {
-    this.errors.push('You must provide a password.')
-  }
-  
-  if(this.data.password.length > 0 &&  this.data.password.length < 12) {
-    this.errors.push('Password must be at least 12 characters.')
+  if (this.data.password === '') {
+    this.errors.push('You must provide a password.');
   }
   
-  if(this.data.password.length > 100){
-    this.errors.push('Password cannot exceed 100 characters.')
+  if (this.data.password.length > 0 && this.data.password.length < 12) {
+    this.errors.push('Password must be at least 12 characters.');
+  }
+  
+  if (this.data.password.length > 100) {
+    this.errors.push('Password cannot exceed 100 characters.');
   }
 };
 
 
-User.prototype.login = function(callback){
-  this.cleanUp();
-  usersCollection.findOne({username: this.data.username}, (err, attemptedUser) => {
-  
-    console.log('attemptedUser', attemptedUser);
-    if(attemptedUser &&  attemptedUser.password ==  this.data.password){
-      callback('Congrats!!');
-    } else {
-      callback('Invalid name or password');
+// User.prototype.login = function(callback){
+//   this.cleanUp();
+//   usersCollection.findOne({username: this.data.username}, (err, attemptedUser) => {
+//
+//     console.log('attemptedUser', attemptedUser);
+//     if(attemptedUser &&  attemptedUser.password ==  this.data.password){
+//       callback('Congrats!!');
+//     } else {
+//       callback('Invalid name or password');
+//     }
+//   })
+// };
+
+// User.prototype.login = function () {
+//   return new Promise((resolve, reject) => {
+//       this.cleanUp();
+//       usersCollection.findOne({ username: this.data.username }, (err, attemptedUser) => {
+//
+//         console.log('attemptedUser', attemptedUser);
+//         if (attemptedUser && attemptedUser.password == this.data.password) {
+//           resolve('Congrats!!');
+//         } else {
+//           reject('Invalid name or password');
+//         }
+//       });
+//     }
+//   );
+// };
+
+User.prototype.login = function () {
+  return new Promise((resolve, reject) => {
+      this.cleanUp();
+      usersCollection.findOne({ username: this.data.username }).then((attemptedUser) => {
+        console.log('attemptedUser', attemptedUser);
+        if (attemptedUser && attemptedUser.password == this.data.password) {
+          resolve('Congrats!!');
+        } else {
+          reject('Invalid name or password');
+        }
+      }).catch(() => {
+        reject('Please try again later.')
+      });
     }
-  })
+  );
 };
 
 
@@ -74,7 +107,7 @@ User.prototype.register = function () {
   // Step #2: Only if there are no validation errors
   // then save the user data into a database
   
-  if(!this.errors.length){
+  if (!this.errors.length) {
     usersCollection.insertOne(this.data);
   }
 };
