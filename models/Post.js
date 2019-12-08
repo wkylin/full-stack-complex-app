@@ -3,10 +3,11 @@ const ObjectID = require('mongodb').ObjectID;
 
 const User = require('./User');
 
-let Post = function (data, userId) {
+let Post = function (data, userId, requestedPostId) {
   this.data = data;
   this.errors = [];
   this.userId = userId;
+  this.requestedPostId = requestedPostId;
 };
 
 Post.prototype.cleanUp = function () {
@@ -52,6 +53,38 @@ Post.prototype.create = function () {
   });
 };
 
+Post.prototype.update = function () {
+  return new Promise(async (resolve, reject) => {
+    try {
+      let post = await Post.findSingleById(this.requestedPostId, this.userId);
+      if (post.isVisitorOwer) {
+        let status = await this.actuallyUpdate();
+        resolve(status);
+      } else {
+        reject();
+      }
+    } catch {
+      reject();
+    }
+  });
+};
+
+Post.prototype.actuallyUpdate = function () {
+  return new Promise(async (resolve, reject) => {
+    this.cleanUp();
+    this.validate();
+    if (!this.errors.length) {
+      await postsCollection.findOneAndUpdate(
+        { _id: new ObjectID(this.requestedPostId) },
+        { $set: { title: this.data.title, body: this.data.body } }
+      );
+      resolve('success');
+    } else {
+      resolve('failure')
+    }
+  });
+};
+
 Post.reusablePostQuery = function (uniqueOperations, visitorId) {
   return new Promise(async function (resolve, reject) {
     
@@ -71,7 +104,7 @@ Post.reusablePostQuery = function (uniqueOperations, visitorId) {
     let posts = await postsCollection.aggregate(aggOperations).toArray();
     
     posts = posts.map(function (post) {
-      post.isVisitorOwer =post.authorId.equals(visitorId);
+      post.isVisitorOwer = post.authorId.equals(visitorId);
       post.author = {
         username: post.author.username,
         avatar: new User(post.author, true).avatar
@@ -93,7 +126,7 @@ Post.findSingleById = function (id, visitorId) {
     let posts = await Post.reusablePostQuery([
       { $match: { _id: ObjectID(id) } }
     ], visitorId);
-  
+    
     // console.log('posts>>>>', posts);
     if (posts.length) {
       // console.log('posts', posts[0]);

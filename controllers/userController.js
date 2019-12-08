@@ -119,7 +119,6 @@ exports.home = function (req, res) {
     // res.send('Welcome to the actual app!');
   } else {
     res.render('home-guest', {
-      errors: req.flash('errors'),
       regErrors: req.flash('regErrors')
     });
   }
