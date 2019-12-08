@@ -1,6 +1,8 @@
 const postsCollection = require('../db').db().collection('posts');
 const ObjectID = require('mongodb').ObjectID;
 
+const User = require('./User');
+
 let Post = function (data, userId) {
   this.data = data;
   this.errors = [];
@@ -19,7 +21,7 @@ Post.prototype.cleanUp = function () {
     title: this.data.title.trim(),
     body: this.data.body.trim(),
     createDate: new Date(),
-    author: ObjectID(this.userId),
+    author: ObjectID(this.userId)
   };
 };
 
@@ -50,19 +52,47 @@ Post.prototype.create = function () {
   });
 };
 
-Post.findSingleById = function(id) {
-  return new Promise( async function(resolve, reject) {
-    if(typeof(id) !==   'string' ||  !ObjectID.isValid(id) ){
+Post.findSingleById = function (id) {
+  return new Promise(async function (resolve, reject) {
+    if (typeof (id) !== 'string' || !ObjectID.isValid(id)) {
       reject();
       return;
     }
-    let post = await postsCollection.findOne({_id: ObjectID(id)});
-    if(post){
-      resolve(post);
+    // let post = await postsCollection.findOne({_id: ObjectID(id)});
+    // if(post){
+    //   resolve(post);
+    // } else {
+    //   reject();
+    // }
+    
+    let posts = await postsCollection.aggregate([
+      { $match: { _id: new ObjectID(id) } },
+      { $lookup: { from: 'users', localField: 'author', foreignField: '_id', as: 'authorDocument' } },
+      {
+        $project: {
+          title: 1,
+          body: 1,
+          createDate: 1,
+          author: { $arrayElemAt: ['$authorDocument', 0] }
+        }
+      }
+    ]).toArray();
+    
+    posts = posts.map(function(post){
+      post.author = {
+        username: post.author.username,
+        avatar: new User(post.author, true).avatar
+      };
+      
+      return post;
+    });
+    if (posts.length) {
+      console.log('posts', posts[0]);
+      resolve(posts[0]);
     } else {
       reject();
     }
-  })
+  });
 };
 
 module.exports = Post;
