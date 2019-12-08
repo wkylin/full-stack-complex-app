@@ -108,10 +108,11 @@ exports.register = function (req, res) {
 exports.home = function (req, res) {
   
   if (req.session.user) {
-    res.render('home-dashboard', {
-      avatar:req.session.user.avatar,
-      username: req.session.user.username
-    });
+    res.render('home-dashboard');
+    // res.render('home-dashboard', {
+    //   avatar:req.session.user.avatar,
+    //   username: req.session.user.username
+    // });
     // res.send('Welcome to the actual app!');
   } else {
     res.render('home-guest', {
