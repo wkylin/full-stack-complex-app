@@ -21,6 +21,7 @@ router.get('/create-post', userController.mustBeLoggedIn, postController.viewCre
 
 router.post('/create-post', userController.mustBeLoggedIn, postController.createPost);
 
+router.get('/post/:id', postController.viewSingle);
 
 // router.get('/', function(req, res) {
 //   res.render('home-guest');
