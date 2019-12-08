@@ -18,7 +18,7 @@
         <% posts.forEach(function(post) { %>
             <a href="/post/<%= post._id %>" class="list-group-item list-group-item-action">
                 <img class="avatar-tiny" src="<%= post.author.avatar%>">
-                <strong><%= post.title %></strong> on <%= post.createDate.getMonth() + 1%> /<%= post.createDate.getDate() %> /<%= post.createDate.getFullYear() %> /
+                <strong><%= post.title %></strong> on <%= post.createDate.getMonth() + 1%>/<%= post.createDate.getDate() %>/<%= post.createDate.getFullYear() %>
             </a>
         <% }) %>
 
