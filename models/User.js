@@ -1,7 +1,7 @@
 const usersCollection = require('../db').db().collection('users');
 const bcrypt = require('bcryptjs');
-
 const validator = require('validator');
+const md5 = require('md5');
 
 let User = function (data) {
   this.data = data;
@@ -106,6 +106,8 @@ User.prototype.login = function () {
       usersCollection.findOne({ username: this.data.username }).then((attemptedUser) => {
         console.log('attemptedUser', attemptedUser);
         if (attemptedUser && bcrypt.compareSync(this.data.password, attemptedUser.password)) {
+          this.data = attemptedUser;
+          this.getAvatar();
           resolve('Congrats!!');
         } else {
           reject('Invalid name or password');
@@ -133,11 +135,17 @@ User.prototype.register = function () {
       let salt = bcrypt.genSaltSync(10);
       this.data.password = bcrypt.hashSync(this.data.password, salt);
       await usersCollection.insertOne(this.data);
+      this.getAvatar();
       resolve();
     } else {
       reject(this.errors);
     }
   });
+};
+
+
+User.prototype.getAvatar = function(){
+  this.avatar = `https://gravatar.com/avatar/${md5(this.data.email)}?s=128`
 };
 
 module.exports = User;

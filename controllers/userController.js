@@ -19,7 +19,7 @@ exports.login = function (req, res) {
   let user = new User(req.body);
   user.login().then(function (result) {
       req.session.user = {
-        favColor: "blue",
+        avatar: user.avatar,
         username: user.data.username
       };
       // res.send(result);
@@ -54,6 +54,7 @@ exports.register = function (req, res) {
   user.register().then(() => {
     
     req.session.user = {
+      avatar: user.avatar,
       username: user.data.username
     };
     req.session.save(function () {
@@ -97,6 +98,7 @@ exports.home = function (req, res) {
   
   if (req.session.user) {
     res.render('home-dashboard', {
+      avatar:req.session.user.avatar,
       username: req.session.user.username
     });
     // res.send('Welcome to the actual app!');
