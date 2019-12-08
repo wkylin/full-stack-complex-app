@@ -4,9 +4,9 @@
 const express = require('express');
 const router = express.Router();
 
-const userController = require('./controllers/userController')
+const userController = require('./controllers/userController');
 
-const postController = require('./controllers/postController.js')
+const postController = require('./controllers/postController.js');
 
 
 router.get('/', userController.home);
@@ -17,8 +17,9 @@ router.post('/login', userController.login);
 
 router.post('/logout', userController.logout);
 
-router.get('/create-post', userController.mustBeLoggedIn,postController.viewCreateScreen);
+router.get('/create-post', userController.mustBeLoggedIn, postController.viewCreateScreen);
 
+router.post('/create-post', userController.mustBeLoggedIn, postController.createPost);
 
 
 // router.get('/', function(req, res) {
