@@ -124,3 +124,22 @@ exports.home = function (req, res) {
   }
   
 };
+
+
+exports.ifUserExists = function(req, res, next) {
+  // next();
+  
+  User.findByUserName(req.params.username).then(function(userDocument){
+    req.profileUser = userDocument;
+    next();
+  }).catch(function(){
+    res.render('404');
+  })
+};
+
+exports.profilePostsScreen = function(req, res){
+  res.render('profile', {
+    profileUserName: req.profileUser.username,
+    profileAvatar: req.profileUser.avatar,
+  });
+};
