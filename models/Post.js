@@ -1,8 +1,10 @@
 const postsCollection = require('../db').db().collection('posts');
+const ObjectID = require('mongodb').ObjectID;
 
-let Post = function (data) {
+let Post = function (data, userId) {
   this.data = data;
   this.errors = [];
+  this.userId = userId;
 };
 
 Post.prototype.cleanUp = function () {
@@ -16,7 +18,8 @@ Post.prototype.cleanUp = function () {
   this.data = {
     title: this.data.title.trim(),
     body: this.data.body.trim(),
-    createDate: new Date()
+    createDate: new Date(),
+    author: ObjectID(this.userId),
   };
 };
 

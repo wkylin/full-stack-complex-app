@@ -104,7 +104,7 @@ User.prototype.login = function () {
   return new Promise((resolve, reject) => {
       this.cleanUp();
       usersCollection.findOne({ username: this.data.username }).then((attemptedUser) => {
-        console.log('attemptedUser', attemptedUser);
+        // console.log('attemptedUser', attemptedUser);
         if (attemptedUser && bcrypt.compareSync(this.data.password, attemptedUser.password)) {
           this.data = attemptedUser;
           this.getAvatar();
