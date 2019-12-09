@@ -1,6 +1,6 @@
 const postsCollection = require('../db').db().collection('posts');
 const ObjectID = require('mongodb').ObjectID;
-
+const sanitizeHtml = require('sanitize-html');
 const User = require('./User');
 
 let Post = function (data, userId, requestedPostId) {
@@ -19,8 +19,8 @@ Post.prototype.cleanUp = function () {
   }
   
   this.data = {
-    title: this.data.title.trim(),
-    body: this.data.body.trim(),
+    title:sanitizeHtml(this.data.title.trim(), {allowedTags:[], allowedAttributes:[]}),
+    body: sanitizeHtml(this.data.body.trim(), {allowedTags:[], allowedAttributes:[]}),
     createDate: new Date(),
     author: ObjectID(this.userId)
   };
@@ -57,7 +57,7 @@ Post.prototype.update = function () {
   return new Promise(async (resolve, reject) => {
     try {
       let post = await Post.findSingleById(this.requestedPostId, this.userId);
-      if (post.isVisitorOwer) {
+      if (post.isVisitorOwner) {
         let status = await this.actuallyUpdate();
         resolve(status);
       } else {
@@ -104,7 +104,7 @@ Post.reusablePostQuery = function (uniqueOperations, visitorId) {
     let posts = await postsCollection.aggregate(aggOperations).toArray();
     
     posts = posts.map(function (post) {
-      post.isVisitorOwer = post.authorId.equals(visitorId);
+      post.isVisitorOwner = post.authorId.equals(visitorId);
       post.author = {
         username: post.author.username,
         avatar: new User(post.author, true).avatar

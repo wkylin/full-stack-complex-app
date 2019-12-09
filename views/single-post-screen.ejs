@@ -6,7 +6,7 @@
 
     <div class="d-flex justify-content-between">
         <h2><%= post.title %></h2>
-        <% if(post.isVisitorOwer) { %>
+        <% if(post.isVisitorOwner) { %>
             <span class="pt-2">
             <a href="/post/<%=post._id%>/edit" class="text-primary mr-2" data-toggle="tooltip" data-placement="top" title="Edit"><i class="fas fa-edit"></i></a>
             <form class="delete-post-form d-inline" action="#" method="POST">
@@ -25,7 +25,8 @@
     </p>
 
     <div class="body-content">
-        <%= post.body %>
+    <!--   <%= filterUserHTML(post.body) %>-->
+        <%- filterUserHTML(post.body) %>
     </div>
 
 </div>
