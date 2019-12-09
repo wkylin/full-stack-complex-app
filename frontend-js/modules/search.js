@@ -1,4 +1,5 @@
 const axios = require('axios');
+const DOMPurify =require('dompurify')
 
 export default class Search {
   constructor() {
@@ -64,18 +65,17 @@ export default class Search {
   
   renderResultHTML(posts){
     if(posts.length){
-      this.resultArea.innerHTML= `<div class="list-group shadow-sm">
-              <div class="list-group-item active"><strong>Search Results</strong> (${posts.length > 1 ? `${posts.length} items` : ` 1 item `} found)</div>
-              ${posts.map((post) => {
-                let postDate = new Date(post.createDate);
-                return `
-                  <a href="/post/${post._id}" class="list-group-item list-group-item-action">
-                    <img class="avatar-tiny" src="${post.author.avatar}"> <strong>${post.title}</strong>
-                    <span class="text-muted small">by ${post.author.username} on ${postDate.getMonth() + 1}/${postDate.getDate()}/${postDate.getFullYear()} </span>
-                  </a>
-                `
-              }).join()}
-            </div>`;
+      this.resultArea.innerHTML= DOMPurify.sanitize(`<div class="list-group shadow-sm">
+        <div class="list-group-item active"><strong>Search Results</strong> (${posts.length > 1 ? `${posts.length} items` : ` 1 item `} found)</div>
+        ${posts.map((post) => {
+        let postDate = new Date(post.createDate);
+        return `<a href="/post/${post._id}" class="list-group-item list-group-item-action">
+            <img class="avatar-tiny" src="${post.author.avatar}"> <strong>${post.title}</strong>
+            <span class="text-muted small">by ${post.author.username} on ${postDate.getMonth() + 1}/${postDate.getDate()}/${postDate.getFullYear()} </span>
+        </a>
+          `
+      }).join()}
+            </div>`);
     } else {
       this.resultArea.innerHTML= `<p class="alert alert-danger text-center shadow">Sorry, we could not find any results for that search.</p>`;
     }
