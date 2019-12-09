@@ -74,3 +74,15 @@ exports.edit = function (req, res) {
   });
 };
 
+exports.delete = function(req, res){
+  // console.log('req', req);
+  Post.delete(req.params.id, req.visitorId).then(()=> {
+    // console.log('>>>>>>')
+    req.flash('success', "Post successfully deleted.");
+    req.session.save(() =>  res.redirect(`/profile/${req.session.user.username}`));
+    
+  }).catch(() =>  {
+    req.flash('errors', 'You do not have permission to perform that action.');
+    req.session.save(() =>  res.redirect('/'));
+  })
+};

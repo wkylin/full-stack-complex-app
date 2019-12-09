@@ -19,8 +19,8 @@ Post.prototype.cleanUp = function () {
   }
   
   this.data = {
-    title:sanitizeHtml(this.data.title.trim(), {allowedTags:[], allowedAttributes:[]}),
-    body: sanitizeHtml(this.data.body.trim(), {allowedTags:[], allowedAttributes:[]}),
+    title: sanitizeHtml(this.data.title.trim(), { allowedTags: [], allowedAttributes: [] }),
+    body: sanitizeHtml(this.data.body.trim(), { allowedTags: [], allowedAttributes: [] }),
     createDate: new Date(),
     author: ObjectID(this.userId)
   };
@@ -80,7 +80,7 @@ Post.prototype.actuallyUpdate = function () {
       );
       resolve('success');
     } else {
-      resolve('failure')
+      resolve('failure');
     }
   });
 };
@@ -127,7 +127,7 @@ Post.findSingleById = function (id, visitorId) {
       { $match: { _id: ObjectID(id) } }
     ], visitorId);
     
-    // console.log('posts>>>>', posts);
+    console.log('posts>>>>', posts);
     if (posts.length) {
       // console.log('posts', posts[0]);
       resolve(posts[0]);
@@ -142,6 +142,26 @@ Post.findByAuthorId = function (authorId) {
     { $match: { author: authorId } },
     { $sort: { createDate: -1 } }
   ]);
+};
+
+Post.delete = function (postIdToDelete, currentUserId) {
+  return new Promise(async (resolve, reject) => {
+    try {
+      let post = await Post.findSingleById(postIdToDelete, currentUserId);
+      
+      // console.log('post', post);
+      if (post.isVisitorOwner) {
+        await postsCollection.deleteOne({
+          _id: new ObjectID(postIdToDelete)
+        });
+        resolve();
+      } else {
+        reject();
+      }
+    } catch {
+      reject();
+    }
+  });
 };
 
 module.exports = Post;
