@@ -5,8 +5,8 @@ const express = require('express');
 const router = express.Router();
 
 const userController = require('./controllers/userController');
-
 const postController = require('./controllers/postController.js');
+const followController = require('./controllers/followController.js');
 
 
 // user related routes
@@ -34,6 +34,8 @@ router.post('/search', postController.search);
 // profile related routes
 router.get('/profile/:username', userController.ifUserExists, userController.profilePostsScreen);
 
+// follow related routes
+router.post('/addFollow/:username', userController.mustBeLoggedIn, followController.addFollow);
 
 // router.get('/', function(req, res) {
 //   res.render('home-guest');
