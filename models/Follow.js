@@ -1,6 +1,7 @@
 const usersCollection = require('../db').db().collection('users');
 const followCollection = require('../db').db().collection('follows');
 const ObjectID = require('mongodb').ObjectID;
+const User = require('./User.js');
 
 let Follow = function(followedUserName, authorId){
   this.followedUserName = followedUserName;
@@ -84,4 +85,31 @@ Follow.isVisitorFollowing = async function(followedId, visitorId){
     return false;
   }
 };
+
+Follow.getFollowersById = function(id){
+  return new Promise(async (resolve, reject) => {
+    try{
+      let followers = await followCollection.aggregate([
+        {$match: {followedId: id}},
+        {$lookup: {from: 'users', localField:'authorId', foreignField: '_id', as: 'userDoc'}},
+        {$project:{
+          username: {$arrayElemAt:['$userDoc.username', 0]},
+          email: {$arrayElemAt:['$userDoc.email', 0]}
+          }}
+      ]).toArray();
+      followers = followers.map(function(follower){
+        // create a user
+        let user = new User(follower, true);
+        return {
+          username: follower.username,
+          avatar: user.avatar
+        }
+      });
+      resolve(followers);
+    } catch {
+      reject()
+    }
+  })
+};
+
 module.exports = Follow;
