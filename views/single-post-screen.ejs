@@ -7,25 +7,26 @@
     <div class="d-flex justify-content-between">
         <h2><%= post.title %></h2>
         <% if(post.isVisitorOwner) { %>
-            <span class="pt-2">
-            <a href="/post/<%=post._id%>/edit" class="text-primary mr-2" data-toggle="tooltip" data-placement="top" title="Edit"><i class="fas fa-edit"></i></a>
-            <form action="/post/<%= post._id%>/delete" class="delete-post-form d-inline" method="POST">
-              <button class="delete-post-button text-danger" data-toggle="tooltip" data-placement="top" title="Delete"><i class="fas fa-trash"></i></button>
+        <span class="pt-2">
+            <a href="/post/<%= post._id %>/edit" class="text-primary mr-2" data-toggle="tooltip" data-placement="top" title="Edit"><i class="fas fa-edit"></i></a>
+            <form action="/post/<%= post._id %>/delete" class="delete-post-form d-inline" method="POST">
+                <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                <button class="delete-post-button text-danger" data-toggle="tooltip" data-placement="top" title="Delete"><i class="fas fa-trash"></i></button>
             </form>
         </span>
-        <%}%>
+        <% } %>
     </div>
 
     <p class="text-muted small mb-4">
-        <a href="/profile/<%= post.author.username%>">
+        <a href="/profile/<%= post.author.username %>">
             <img class="avatar-tiny" src="<%= post.author.avatar %>">
         </a>
-        Posted by <a href="/profile/<%= post.author.username%>"><%= post.author.username %></a>
-        on <%= post.createDate.getMonth() + 1%>/<%= post.createDate.getDate() %>/<%= post.createDate.getFullYear() %>
+        Posted by <a href="/profile/<%= post.author.username %>"><%= post.author.username %></a>
+        on <%= post.createDate.getMonth() + 1 %>/<%= post.createDate.getDate() %>/<%= post.createDate.getFullYear() %>
     </p>
 
     <div class="body-content">
-    <!--   <%= filterUserHTML(post.body) %>-->
+        <!--   <%= filterUserHTML(post.body) %>-->
         <%- filterUserHTML(post.body) %>
     </div>
 
