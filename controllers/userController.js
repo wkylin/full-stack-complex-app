@@ -137,7 +137,7 @@ exports.home = async function (req, res) {
     
     let posts = await Post.getFeed(req.session.user._id);
   
-    console.log('posts>>>>>', posts);
+    // console.log('posts>>>>>', posts);
     res.render('home-dashboard', {posts: posts});
     // res.render('home-dashboard', {
     //   avatar:req.session.user.avatar,
