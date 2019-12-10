@@ -4,12 +4,18 @@
 
     <%- include('includes/flash') %>
 
-
     <h2><img class="avatar-small" src="<%= profileAvatar %>"> <%= profileUserName %>
-        <form class="ml-2 d-inline" action="/addFollow/<%=profileUserName%>" method="POST">
-            <button class="btn btn-primary btn-sm">Follow <i class="fas fa-user-plus"></i></button>
-            <!-- <button class="btn btn-danger btn-sm">Stop Following <i class="fas fa-user-times"></i></button> -->
-        </form>
+        <% if(user && !isVisitorProfile) { %>
+          <% if(isFollowing){%>
+            <form class="ml-2 d-inline" action="/removeFollow/<%=profileUserName%>" method="POST">
+                 <button class="btn btn-danger btn-sm">Stop Following <i class="fas fa-user-times"></i></button>
+            </form>
+         <% } else { %>
+            <form class="ml-2 d-inline" action="/addFollow/<%=profileUserName%>" method="POST">
+                <button class="btn btn-primary btn-sm">Follow <i class="fas fa-user-plus"></i></button>
+            </form>
+         <% } %>
+        <%}%>
     </h2>
 
     <div class="profile-nav nav nav-tabs pt-2 mb-4">
