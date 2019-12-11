@@ -4,5 +4,6 @@ full stack app
 
 #技术栈：
 
--- nodejs
--- express
+--nodejs
+--express
+--mongodb
